@@ -49,9 +49,12 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
         private set
 
     init {
+        store.runMigrationsIfNeeded()
         favoriteIds = store.loadFavorites()
         cartItems = store.loadCart()
-        orders = store.loadOrders()
+        orders = store.loadOrders().map { order ->
+            if (order.status == OrderStatus.PLACED) order.copy(status = OrderStatus.PREPARING) else order
+        }
     }
 
     // --------------------------------------------------------------- Favourites
@@ -101,32 +104,6 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
         store.saveCart(cartItems)
     }
 
-    /** Re-adds every line of a previous order back into the cart. */
-    fun addOrderToCart(order: Order) {
-        var updated = cartItems
-        order.lines.forEach { line ->
-            val pack = MockData.packs.firstOrNull { it.name == line.name }
-            val lineId = pack?.let { "pack:${it.id}" } ?: "order:${UUID.randomUUID()}"
-            val existing = updated.firstOrNull { it.id == lineId }
-            updated = if (existing != null) {
-                updated.map {
-                    if (it.id == lineId) it.copy(quantity = it.quantity + line.quantity) else it
-                }
-            } else {
-                updated + CartItem(
-                    id = lineId,
-                    title = line.name,
-                    subtitle = pack?.occasionName ?: order.subtitle,
-                    unitPrice = line.price,
-                    quantity = line.quantity,
-                    imageRes = pack?.imageRes ?: order.imageRes
-                )
-            }
-        }
-        cartItems = updated
-        store.saveCart(cartItems)
-    }
-
     fun confirmOrder() {
         if (cartItems.isEmpty()) return
         val order = Order(
@@ -137,7 +114,7 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
             imageRes = cartItems.first().imageRes,
             total = cartSubtotal,
             dateMillis = System.currentTimeMillis(),
-            status = OrderStatus.PLACED,
+            status = OrderStatus.PREPARING,
             lines = cartItems.map { OrderLine(it.title, it.quantity, it.unitPrice) }
         )
         orders = listOf(order) + orders

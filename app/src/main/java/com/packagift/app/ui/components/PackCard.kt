@@ -55,6 +55,7 @@ fun PackCard(
     Card(
         modifier = modifier
             .width(198.dp)
+            .aspectRatio(1f)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
@@ -68,31 +69,37 @@ fun PackCard(
         colors = CardDefaults.cardColors(containerColor = BackgroundPink),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Column {
+        Column(modifier = Modifier.fillMaxSize()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1f)
+                    .weight(1f)
                     .background(BlueLight.copy(alpha = 0.55f)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(pack.imageRes),
                     contentDescription = pack.name,
-                    modifier = Modifier.fillMaxSize(0.7f)
+                    modifier = Modifier.fillMaxSize(0.6f)
                 )
             }
-            Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(BackgroundPink)
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
+            ) {
                 Text(
                     text = pack.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = WineSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(3.dp))
                 Text(
                     text = formatPrice(pack.price),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = WineSecondary,
                     fontWeight = FontWeight.Bold
                 )
@@ -112,9 +119,9 @@ fun CarouselSection(
     Column(modifier = modifier.fillMaxWidth().padding(vertical = 10.dp)) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineMedium,
             color = WineSecondary,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),

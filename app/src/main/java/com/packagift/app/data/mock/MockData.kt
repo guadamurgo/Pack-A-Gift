@@ -41,9 +41,9 @@ object MockData {
         Occasion("aniversario", "Aniversario", R.drawable.ic_letter),
         Occasion("cumpleanos", "Cumpleaños", R.drawable.ic_balloon),
         Occasion("graduacion", "Graduación", R.drawable.ic_pen),
-        Occasion("navidad", "Navidad", R.drawable.ic_ornament),
-        Occasion("pascuas", "Pascuas", R.drawable.ic_candy),
-        Occasion("dianino", "Día del Niño", R.drawable.ic_balloon)
+        Occasion("dianino", "Día del Niño", R.drawable.ic_balloon) ,
+        Occasion("primavera", "Día de la Primavera", R.drawable.ic_candy),
+        Occasion("dulzura", "Semana de la Dulzura", R.drawable.ic_chocolate)
     )
 
     /** Extra option offered in the Create flow. */
@@ -195,38 +195,38 @@ object MockData {
             listOf("Minitorta", "Chocolates", "Taza", "Lapicera", "Tarjeta")
         ),
 
-        // Navidad
+        // Día de la Primavera
         pack(
-            "x1", "Pack Navidad Mágica", "navidad", "Navidad", R.drawable.ic_ornament,
-            "El espíritu navideño en un pack.",
-            listOf("Minitorta", "Dulces navideños", "Chocolate", "Adorno", "Tarjeta"), trending = true
-        ),
-        pack(
-            "x2", "Pack Nochebuena", "navidad", "Navidad", R.drawable.ic_candle,
-            "Para compartir en la mesa de Nochebuena.",
-            listOf("Minitorta", "Dulces navideños", "Chocolate", "Adorno", "Vela")
-        ),
-        pack(
-            "x3", "Pack Papa Noel", "navidad", "Navidad", R.drawable.ic_gift,
-            "Una sorpresa llegada directo del Polo Norte.",
-            listOf("Minitorta", "Dulces navideños", "Chocolate", "Adorno", "Tarjeta")
-        ),
-
-        // Pascuas
-        pack(
-            "s1", "Pack Huevitos", "pascuas", "Pascuas", R.drawable.ic_candy,
-            "Dulzura para la búsqueda de Pascuas.",
-            listOf("Minitorta", "Chocolate", "Golosinas", "Adorno", "Tarjeta")
-        ),
-        pack(
-            "s2", "Pack Primavera", "pascuas", "Pascuas", R.drawable.ic_cake,
-            "Un pack fresco y dulce para Pascuas.",
+            "pr1", "Pack Primavera", "primavera", "Día de la Primavera", R.drawable.ic_candy,
+            "Colores y dulzura para celebrar la primavera.",
             listOf("Minitorta", "Chocolate", "Golosinas", "Vela", "Tarjeta")
         ),
         pack(
-            "s3", "Pack Pascuas Dulces", "pascuas", "Pascuas", R.drawable.ic_sticker,
-            "Para endulzar las Pascuas.",
-            listOf("Minitorta", "Chocolate", "Golosinas", "Stickers", "Tarjeta")
+            "pr2", "Pack Flores de Primavera", "primavera", "Día de la Primavera", R.drawable.ic_card,
+            "Un detalle fresco para dar la bienvenida a la primavera.",
+            listOf("Minitorta", "Chocolate", "Vela", "Tarjeta", "Pulsera")
+        ),
+        pack(
+            "pr3", "Pack Día de la Primavera", "primavera", "Día de la Primavera", R.drawable.ic_balloon,
+            "Un pack alegre para festejar el 21 de septiembre.",
+            listOf("Minitorta", "Snacks", "Chocolates", "Stickers", "Tarjeta")
+        ),
+
+        // Semana de la Dulzura
+        pack(
+            "du1", "Pack Dulzura", "dulzura", "Semana de la Dulzura", R.drawable.ic_chocolate,
+            "Para endulzar cada día de la semana de la dulzura.",
+            listOf("Minitorta", "Golosinas", "Chocolate", "Vela", "Tarjeta")
+        ),
+        pack(
+            "du2", "Pack Dulce Semana", "dulzura", "Semana de la Dulzura", R.drawable.ic_candy,
+            "Todo el dulce que alguien especial merece.",
+            listOf("Minitorta", "Chocolates", "Golosinas", "Stickers", "Tarjeta")
+        ),
+        pack(
+            "du3", "Pack Para Endulzar", "dulzura", "Semana de la Dulzura", R.drawable.ic_cake,
+            "Un regalo dulce para compartir.",
+            listOf("Minitorta", "Chocolate", "Golosinas", "Taza", "Tarjeta")
         ),
 
         // Día del Niño

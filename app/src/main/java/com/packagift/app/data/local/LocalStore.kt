@@ -131,10 +131,29 @@ class LocalStore(context: Context) {
         prefs.edit().putString(KEY_ORDERS, array.toString()).apply()
     }
 
+    /** Removes stored favourites and previous order history. */
+    fun clearFavoritesAndOrders() {
+        prefs.edit()
+            .remove(KEY_FAVORITES)
+            .remove(KEY_ORDERS)
+            .apply()
+    }
+
+    /** One-time storage cleanup so existing installs start with empty favourites/orders. */
+    fun runMigrationsIfNeeded() {
+        val version = prefs.getInt(KEY_DATA_VERSION, 0)
+        if (version < DATA_VERSION) {
+            clearFavoritesAndOrders()
+            prefs.edit().putInt(KEY_DATA_VERSION, DATA_VERSION).apply()
+        }
+    }
+
     private companion object {
         const val PREFS_NAME = "pack_a_gift_store"
         const val KEY_FAVORITES = "favorites"
         const val KEY_CART = "cart"
         const val KEY_ORDERS = "orders"
+        const val KEY_DATA_VERSION = "data_version"
+        const val DATA_VERSION = 1
     }
 }

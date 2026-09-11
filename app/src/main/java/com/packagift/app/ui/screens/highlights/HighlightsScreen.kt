@@ -41,14 +41,6 @@ fun HighlightsScreen(
                 )
             }
 
-            item(key = "trending") {
-                CarouselSection(
-                    title = "Tendencias",
-                    packs = viewModel.trendingPacks,
-                    onPackClick = onPackClick
-                )
-            }
-
             items(viewModel.occasions, key = { it.id }) { occasion ->
                 CarouselSection(
                     title = occasion.name,

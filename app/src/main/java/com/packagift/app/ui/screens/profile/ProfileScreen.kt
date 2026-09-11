@@ -3,7 +3,6 @@ package com.packagift.app.ui.screens.profile
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,18 +20,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,62 +43,41 @@ import com.packagift.app.ui.theme.PinkPrimary
 import com.packagift.app.ui.theme.TextSecondary
 import com.packagift.app.ui.theme.WineSecondary
 import com.packagift.app.ui.viewmodel.PackAGiftViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
     viewModel: PackAGiftViewModel,
     onPackClick: (Pack) -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 24.dp)
+    ) {
+        item(key = "header") { ProfileHeader(viewModel) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 24.dp)
-        ) {
-            item(key = "header") { ProfileHeader(viewModel) }
-
-            item(key = "fav_title") { SectionHeader("Favoritos") }
-            val favorites = viewModel.favoritePacks
-            if (favorites.isEmpty()) {
-                item(key = "fav_empty") {
-                    EmptyState("Todavía no guardaste ningún favorito.")
-                }
-            } else {
-                items(favorites, key = { "fav_${it.id}" }) { pack ->
-                    FavoriteRow(pack = pack, onClick = { onPackClick(pack) })
-                }
+        item(key = "fav_title") { SectionHeader("Favoritos") }
+        val favorites = viewModel.favoritePacks
+        if (favorites.isEmpty()) {
+            item(key = "fav_empty") {
+                EmptyState("Todavía no guardaste ningún favorito.")
             }
-
-            item(key = "orders_title") { SectionHeader("Compras anteriores") }
-            val orders = viewModel.orders
-            if (orders.isEmpty()) {
-                item(key = "orders_empty") {
-                    EmptyState("Todavía no realizaste ninguna compra.")
-                }
-            } else {
-                items(orders, key = { it.id }) { order ->
-                    OrderRow(
-                        order = order,
-                        onAddToCart = {
-                            viewModel.addOrderToCart(order)
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Agregado al carrito")
-                            }
-                        }
-                    )
-                }
+        } else {
+            items(favorites, key = { "fav_${it.id}" }) { pack ->
+                FavoriteRow(pack = pack, onClick = { onPackClick(pack) })
             }
         }
 
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp)
-        )
+        item(key = "orders_title") { SectionHeader("Compras anteriores") }
+        val orders = viewModel.orders
+        if (orders.isEmpty()) {
+            item(key = "orders_empty") {
+                EmptyState("Todavía no realizaste ninguna compra.")
+            }
+        } else {
+            items(orders, key = { it.id }) { order ->
+                OrderRow(order = order)
+            }
+        }
     }
 }
 
@@ -215,10 +187,7 @@ private fun FavoriteRow(
 }
 
 @Composable
-private fun OrderRow(
-    order: Order,
-    onAddToCart: () -> Unit
-) {
+private fun OrderRow(order: Order) {
     Card(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = BackgroundPink),
@@ -227,66 +196,52 @@ private fun OrderRow(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(78.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(PinkPrimary.copy(alpha = 0.45f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(order.imageRes),
-                        contentDescription = order.title,
-                        modifier = Modifier.fillMaxSize(0.72f)
-                    )
-                }
-                Spacer(Modifier.width(14.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = order.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(Modifier.height(3.dp))
-                    Text(
-                        text = formatDate(order.dateMillis),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
-                    )
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = order.status.label,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = WineSecondary
-                    )
-                }
-                Spacer(Modifier.width(8.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(78.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(PinkPrimary.copy(alpha = 0.45f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(order.imageRes),
+                    contentDescription = order.title,
+                    modifier = Modifier.fillMaxSize(0.72f)
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = formatPrice(order.total),
+                    text = order.title,
                     style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    text = formatDate(order.dateMillis),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = order.status.label,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = WineSecondary
                 )
             }
-            Spacer(Modifier.height(10.dp))
-            Button(
-                onClick = onAddToCart,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(46.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = PinkPrimary,
-                    contentColor = WineSecondary
-                )
-            ) {
-                Text(
-                    text = "Agregar al carrito",
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = formatPrice(order.total),
+                style = MaterialTheme.typography.titleMedium,
+                color = WineSecondary
+            )
         }
     }
 }

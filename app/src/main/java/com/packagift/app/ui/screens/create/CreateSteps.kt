@@ -39,6 +39,7 @@ import com.packagift.app.data.mock.MockData
 import com.packagift.app.data.model.PackageSize
 import com.packagift.app.ui.components.SizeOptionCard
 import com.packagift.app.ui.components.SquareSelectCard
+import com.packagift.app.ui.components.TextOptionCard
 import com.packagift.app.ui.components.formatPrice
 import com.packagift.app.ui.theme.BackgroundPink
 import com.packagift.app.ui.theme.BlueLight
@@ -58,11 +59,10 @@ internal fun OccasionStep(viewModel: PackAGiftViewModel) {
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(viewModel.createOccasions, key = { it.id }) { occasion ->
-                SquareSelectCard(
-                    imageRes = occasion.imageRes,
+                TextOptionCard(
                     label = occasion.name,
                     selected = viewModel.selectedOccasion?.id == occasion.id,
                     onClick = { viewModel.selectOccasion(occasion) }

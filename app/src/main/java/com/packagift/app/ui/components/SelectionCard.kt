@@ -113,6 +113,49 @@ fun SquareSelectCard(
 }
 
 @Composable
+fun TextOptionCard(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val shape = RoundedCornerShape(18.dp)
+    val borderColor by animateColorAsState(
+        targetValue = if (selected) WineSecondary else CardBorder,
+        label = "textOptionBorder"
+    )
+    val background by animateColorAsState(
+        targetValue = if (selected) PinkPrimary.copy(alpha = 0.8f) else BackgroundPink,
+        label = "textOptionBackground"
+    )
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(background)
+            .border(if (selected) 2.5.dp else 1.dp, borderColor, shape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 20.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.headlineSmall,
+            color = WineSecondary,
+            modifier = Modifier.weight(1f)
+        )
+        if (selected) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = null,
+                tint = WineSecondary
+            )
+        }
+    }
+}
+
+@Composable
 fun SizeOptionCard(
     size: PackageSize,
     selected: Boolean,

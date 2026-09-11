@@ -8,11 +8,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.packagift.app.R
 
-val AnonymousPro = FontFamily(
-    Font(R.font.anonymouspro_regular, FontWeight.Normal),
-    Font(R.font.anonymouspro_bold, FontWeight.Bold)
-)
+/** Roboto (system default font on Android). */
+val Roboto = FontFamily.Default
 
+/** Ahsing is used only for the main "Pack-A-Gift" logo/title. */
 val Ahsing = FontFamily(
     Font(R.font.ahsing, FontWeight.Normal)
 )
@@ -21,7 +20,7 @@ private fun style(
     size: Int,
     weight: FontWeight = FontWeight.Normal,
     lineHeight: Int = (size * 1.35f).toInt(),
-    family: FontFamily = AnonymousPro
+    family: FontFamily = Roboto
 ) = TextStyle(
     fontFamily = family,
     fontWeight = weight,
