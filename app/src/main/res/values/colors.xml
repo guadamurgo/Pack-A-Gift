@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="pack_pink">#F4ADBD</color>
+    <color name="pack_wine">#6C0820</color>
+    <color name="pack_background">#F4DCDC</color>
+    <color name="pack_white">#FFFBFB</color>
+    <color name="pack_blue_light">#DCE1F4</color>
+    <color name="pack_blue_mid">#86A5D7</color>
+    <color name="pack_blue_dark">#3E5D93</color>
+    <color name="white">#FFFFFF</color>
+</resources>
