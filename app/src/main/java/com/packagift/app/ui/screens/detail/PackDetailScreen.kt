@@ -36,11 +36,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.packagift.app.ui.components.RoundIconButton
 import com.packagift.app.ui.components.formatPrice
-import com.packagift.app.ui.theme.BlueLight
 import com.packagift.app.ui.theme.PinkPrimary
 import com.packagift.app.ui.theme.TextPrimary
 import com.packagift.app.ui.theme.WineSecondary
@@ -73,19 +73,14 @@ fun PackDetailScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            Box(
+            Image(
+                painter = painterResource(pack.imageRes),
+                contentDescription = pack.name,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1.1f)
-                    .background(BlueLight.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(pack.imageRes),
-                    contentDescription = pack.name,
-                    modifier = Modifier.fillMaxSize(0.5f)
-                )
-            }
+                    .aspectRatio(1f)
+            )
 
             Column(modifier = Modifier.padding(16.dp)) {
                 Surface(

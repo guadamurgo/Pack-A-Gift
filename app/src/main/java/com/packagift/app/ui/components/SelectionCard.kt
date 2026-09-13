@@ -73,7 +73,7 @@ fun SquareSelectCard(
             Image(
                 painter = painterResource(imageRes),
                 contentDescription = label,
-                modifier = Modifier.fillMaxSize(0.72f)
+                modifier = Modifier.fillMaxSize(0.8f)
             )
             if (selected) {
                 Box(
@@ -119,37 +119,41 @@ fun TextOptionCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(18.dp)
+    val shape = RoundedCornerShape(20.dp)
     val borderColor by animateColorAsState(
         targetValue = if (selected) WineSecondary else CardBorder,
         label = "textOptionBorder"
     )
     val background by animateColorAsState(
-        targetValue = if (selected) PinkPrimary.copy(alpha = 0.8f) else BackgroundPink,
+        targetValue = if (selected) PinkPrimary else BackgroundPink,
         label = "textOptionBackground"
     )
 
-    Row(
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(shape)
             .background(background)
             .border(if (selected) 2.5.dp else 1.dp, borderColor, shape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 20.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 20.dp, vertical = 22.dp),
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.headlineSmall,
             color = WineSecondary,
-            modifier = Modifier.weight(1f)
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
         )
         if (selected) {
             Icon(
                 imageVector = Icons.Filled.Check,
                 contentDescription = null,
-                tint = WineSecondary
+                tint = WineSecondary,
+                modifier = Modifier.align(Alignment.CenterEnd)
             )
         }
     }

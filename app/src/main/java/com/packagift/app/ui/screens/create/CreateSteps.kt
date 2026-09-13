@@ -52,16 +52,17 @@ import com.packagift.app.ui.viewmodel.PackAGiftViewModel
 
 @Composable
 internal fun OccasionStep(viewModel: PackAGiftViewModel) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         StepQuestion("¿Para quién o qué ocasión es el regalo?")
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(viewModel.createOccasions, key = { it.id }) { occasion ->
+            viewModel.createOccasions.forEach { occasion ->
                 TextOptionCard(
                     label = occasion.name,
                     selected = viewModel.selectedOccasion?.id == occasion.id,
@@ -69,6 +70,7 @@ internal fun OccasionStep(viewModel: PackAGiftViewModel) {
                 )
             }
         }
+        Spacer(Modifier.height(16.dp))
     }
 }
 
