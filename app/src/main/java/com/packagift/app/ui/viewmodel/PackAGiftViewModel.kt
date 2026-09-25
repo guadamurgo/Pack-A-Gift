@@ -6,7 +6,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import com.packagift.app.data.local.LocalStore
+import androidx.lifecycle.viewModelScope
+import com.packagift.app.data.db.ShopRepository
 import com.packagift.app.data.mock.MockData
 import com.packagift.app.data.model.BoxShape
 import com.packagift.app.data.model.CartItem
@@ -17,14 +18,15 @@ import com.packagift.app.data.model.OrderLine
 import com.packagift.app.data.model.OrderStatus
 import com.packagift.app.data.model.Pack
 import com.packagift.app.data.model.PackageSize
+import com.packagift.app.data.model.User
 import java.util.UUID
+import kotlinx.coroutines.launch
 
 class PackAGiftViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val store = LocalStore(application)
+    private val repository = ShopRepository(application)
 
     // --------------------------------------------------------------- Catalog (mock data)
-    val user get() = MockData.user
     val occasions get() = MockData.occasions
     val createOccasions get() = MockData.createOccasions
     val trendingPacks get() = MockData.trendingPacks
@@ -38,7 +40,10 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
     fun boxById(id: String?): BoxShape? = MockData.boxById(id)
     fun miniCakeById(id: String?): MiniCake? = MockData.miniCakeById(id)
 
-    // --------------------------------------------------------------- User data (persisted)
+    // --------------------------------------------------------------- User data (Room database)
+    var user: User by mutableStateOf(MockData.user)
+        private set
+
     var favoriteIds: Set<String> by mutableStateOf(emptySet())
         private set
 
@@ -49,11 +54,31 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
         private set
 
     init {
-        store.runMigrationsIfNeeded()
-        favoriteIds = store.loadFavorites()
-        cartItems = store.loadCart()
-        orders = store.loadOrders().map { order ->
-            if (order.status == OrderStatus.PLACED) order.copy(status = OrderStatus.PREPARING) else order
+        viewModelScope.launch {
+            repository.migrateIfNeeded()
+            refreshAll()
+        }
+    }
+
+    /** Recarga todo desde la base (usuario, favoritos, carrito y pedidos). */
+    fun refreshAll() {
+        viewModelScope.launch {
+            user = repository.getUser()
+            favoriteIds = repository.getFavoriteIds()
+            cartItems = repository.getCartItems()
+            refreshOrders()
+        }
+    }
+
+    /**
+     * Recarga solo los pedidos. Llamalo al entrar a Perfil para ver cambios
+     * hechos a mano en la base (columna `status` de la tabla `orders`).
+     */
+    fun refreshOrders() {
+        viewModelScope.launch {
+            orders = repository.getOrders().map { order ->
+                if (order.status == OrderStatus.PLACED) order.copy(status = OrderStatus.PREPARING) else order
+            }
         }
     }
 
@@ -62,7 +87,10 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun toggleFavorite(packId: String) {
         favoriteIds = if (packId in favoriteIds) favoriteIds - packId else favoriteIds + packId
-        store.saveFavorites(favoriteIds)
+        viewModelScope.launch {
+            if (packId in favoriteIds) repository.addFavorite(packId)
+            else repository.removeFavorite(packId)
+        }
     }
 
     val favoritePacks: List<Pack>
@@ -75,10 +103,10 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
     fun addPackToCart(pack: Pack) {
         val lineId = "pack:${pack.id}"
         val existing = cartItems.firstOrNull { it.id == lineId }
-        cartItems = if (existing != null) {
-            cartItems.map { if (it.id == lineId) it.copy(quantity = it.quantity + 1) else it }
+        val updated = if (existing != null) {
+            existing.copy(quantity = existing.quantity + 1)
         } else {
-            cartItems + CartItem(
+            CartItem(
                 id = lineId,
                 title = pack.name,
                 subtitle = pack.occasionName,
@@ -87,23 +115,34 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
                 imageRes = pack.imageRes
             )
         }
-        store.saveCart(cartItems)
+        cartItems = if (existing != null) {
+            cartItems.map { if (it.id == lineId) updated else it }
+        } else {
+            cartItems + updated
+        }
+        viewModelScope.launch { repository.upsertCartItem(updated) }
     }
 
     fun updateQuantity(itemId: String, quantity: Int) {
-        cartItems = if (quantity <= 0) {
-            cartItems.filterNot { it.id == itemId }
-        } else {
-            cartItems.map { if (it.id == itemId) it.copy(quantity = quantity) else it }
+        if (quantity <= 0) {
+            removeFromCart(itemId)
+            return
         }
-        store.saveCart(cartItems)
+        cartItems = cartItems.map { if (it.id == itemId) it.copy(quantity = quantity) else it }
+        val updated = cartItems.firstOrNull { it.id == itemId } ?: return
+        viewModelScope.launch { repository.upsertCartItem(updated) }
     }
 
     fun removeFromCart(itemId: String) {
         cartItems = cartItems.filterNot { it.id == itemId }
-        store.saveCart(cartItems)
+        viewModelScope.launch { repository.deleteCartItem(itemId) }
     }
 
+    /**
+     * "Confirmar pedido" NO cobra nada real: solo guarda el pedido en la tabla
+     * `orders` (con sus líneas en `order_lines`), vacía el carrito y lo muestra
+     * en Perfil > Compras anteriores.
+     */
     fun confirmOrder() {
         if (cartItems.isEmpty()) return
         val order = Order(
@@ -118,9 +157,11 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
             lines = cartItems.map { OrderLine(it.title, it.quantity, it.unitPrice) }
         )
         orders = listOf(order) + orders
-        store.saveOrders(orders)
         cartItems = emptyList()
-        store.saveCart(cartItems)
+        viewModelScope.launch {
+            repository.insertOrder(order)
+            repository.clearCart()
+        }
     }
 
     // --------------------------------------------------------------- Create flow
@@ -223,7 +264,7 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
         val baseSubtitle = "$boxName · Minitorta de $cakeName + ${selectedAdditionals.size} adicionales"
         val subtitle = if (customComment.isNotBlank()) "$baseSubtitle · \"${customComment.trim()}\"" else baseSubtitle
 
-        cartItems = cartItems + CartItem(
+        val item = CartItem(
             id = "custom:${UUID.randomUUID()}",
             title = "Pack personalizado — $occasionName",
             subtitle = subtitle,
@@ -232,7 +273,8 @@ class PackAGiftViewModel(application: Application) : AndroidViewModel(applicatio
             imageRes = selectedBox?.imageRes ?: MockData.logoRes,
             isCustom = true
         )
-        store.saveCart(cartItems)
+        cartItems = cartItems + item
+        viewModelScope.launch { repository.upsertCartItem(item) }
         resetCreate()
         return true
     }
