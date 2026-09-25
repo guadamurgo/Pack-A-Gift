@@ -41,6 +41,15 @@ fun HighlightsScreen(
                 )
             }
 
+            // Packs preparados del Excel: siempre al principio, en Destacados.
+            item(key = "nuestros-packs") {
+                CarouselSection(
+                    title = "Destacados",
+                    packs = viewModel.trendingPacks,
+                    onPackClick = onPackClick
+                )
+            }
+
             items(viewModel.occasions, key = { it.id }) { occasion ->
                 CarouselSection(
                     title = occasion.name,

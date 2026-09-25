@@ -56,11 +56,12 @@ enum class OrderStatus(val label: String) {
     DELIVERED("Entregado")
 }
 
-/** Size of a custom pack: always 1 mini cake + N additionals. */
+/** Size of a custom pack: always 1 mini cake + N additionals.
+ * Base prices are the final Excel sale prices (Personalizado simple/intermedio/grande). */
 enum class PackageSize(val id: String, val label: String, val additionalCount: Int, val basePrice: Int) {
-    SIMPLE("simple", "Simple", 3, 5000),
-    INTERMEDIA("intermedia", "Intermedia", 5, 5000),
-    GRANDE("grande", "Grande", 7, 5000)
+    SIMPLE("simple", "Simple", 3, 27500),
+    INTERMEDIA("intermedia", "Intermedia", 5, 34000),
+    GRANDE("grande", "Grande", 7, 37500)
 }
 
 data class CartItem(
